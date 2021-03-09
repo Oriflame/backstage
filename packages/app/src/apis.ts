@@ -18,6 +18,7 @@ import {
   errorApiRef,
   githubAuthApiRef,
   createApiFactory,
+  configApiRef,
 } from '@backstage/core';
 
 import {
@@ -30,7 +31,18 @@ import {
   ExampleCostInsightsClient,
 } from '@backstage/plugin-cost-insights';
 
+import {
+  scmIntegrationsApiRef,
+  ScmIntegrationsApi,
+} from '@backstage/integration-react';
+
 export const apis = [
+  createApiFactory({
+    api: scmIntegrationsApiRef,
+    deps: { configApi: configApiRef },
+    factory: ({ configApi }) => ScmIntegrationsApi.fromConfig(configApi),
+  }),
+
   createApiFactory({
     api: graphQlBrowseApiRef,
     deps: { errorApi: errorApiRef, githubAuthApi: githubAuthApiRef },

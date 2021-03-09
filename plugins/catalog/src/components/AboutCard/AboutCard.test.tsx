@@ -34,7 +34,7 @@ describe('<AboutCard />', () => {
       kind: 'Component',
       metadata: {
         name: 'software',
-        description: 'This is the decription',
+        description: 'This is the description',
       },
       spec: {
         owner: 'guest',
@@ -70,7 +70,7 @@ describe('<AboutCard />', () => {
     expect(getByText('service')).toBeInTheDocument();
     expect(getByText('user:guest')).toBeInTheDocument();
     expect(getByText('production')).toBeInTheDocument();
-    expect(getByText('This is the decription')).toBeInTheDocument();
+    expect(getByText('This is the description')).toBeInTheDocument();
   });
 
   it('renders "view source" link', async () => {

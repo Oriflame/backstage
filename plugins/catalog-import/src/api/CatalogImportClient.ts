@@ -16,13 +16,11 @@
 
 import { CatalogApi } from '@backstage/catalog-client';
 import { EntityName } from '@backstage/catalog-model';
+import { DiscoveryApi, IdentityApi, OAuthApi } from '@backstage/core';
 import {
-  ConfigApi,
-  DiscoveryApi,
-  IdentityApi,
-  OAuthApi,
-} from '@backstage/core';
-import { GitHubIntegrationConfig } from '@backstage/integration';
+  GitHubIntegrationConfig,
+  ScmIntegrationRegistry,
+} from '@backstage/integration';
 import { Octokit } from '@octokit/rest';
 import { PartialEntity } from '../types';
 import { AnalyzeResult, CatalogImportApi } from './CatalogImportApi';
@@ -32,20 +30,20 @@ export class CatalogImportClient implements CatalogImportApi {
   private readonly discoveryApi: DiscoveryApi;
   private readonly identityApi: IdentityApi;
   private readonly githubAuthApi: OAuthApi;
-  private readonly configApi: ConfigApi;
+  private readonly scmIntegrationsApi: ScmIntegrationRegistry;
   private readonly catalogApi: CatalogApi;
 
   constructor(options: {
     discoveryApi: DiscoveryApi;
     githubAuthApi: OAuthApi;
     identityApi: IdentityApi;
-    configApi: ConfigApi;
+    scmIntegrationsApi: ScmIntegrationRegistry;
     catalogApi: CatalogApi;
   }) {
     this.discoveryApi = options.discoveryApi;
     this.githubAuthApi = options.githubAuthApi;
     this.identityApi = options.identityApi;
-    this.configApi = options.configApi;
+    this.scmIntegrationsApi = options.scmIntegrationsApi;
     this.catalogApi = options.catalogApi;
   }
 
@@ -72,7 +70,7 @@ export class CatalogImportClient implements CatalogImportApi {
       };
     }
 
-    const ghConfig = getGithubIntegrationConfig(this.configApi, url);
+    const ghConfig = getGithubIntegrationConfig(this.scmIntegrationsApi, url);
 
     if (ghConfig) {
       // TODO: this could be part of the analyze-location endpoint
@@ -112,7 +110,10 @@ export class CatalogImportClient implements CatalogImportApi {
     title: string;
     body: string;
   }): Promise<{ link: string; location: string }> {
-    const ghConfig = getGithubIntegrationConfig(this.configApi, repositoryUrl);
+    const ghConfig = getGithubIntegrationConfig(
+      this.scmIntegrationsApi,
+      repositoryUrl,
+    );
 
     if (ghConfig) {
       return await this.submitGitHubPrToRepo({
